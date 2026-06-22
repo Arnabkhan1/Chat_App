@@ -3,7 +3,7 @@ import { useSocketContext } from '../context/SocketContext';
 import useAuthStore from '../context/authStore';
 import { getMessages, sendMessage, deleteMessage, editMessage } from '../services/messageService';
 
-const ChatWindow = ({ selectedUser }) => {
+const ChatWindow = ({ selectedUser, onBack }) => {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
@@ -229,8 +229,16 @@ const ChatWindow = ({ selectedUser }) => {
     return (
         <div className="flex-1 flex flex-col h-screen bg-whatsapp-dark">
             {/* Header */}
+            {/* Header */}
             <div className="p-4 bg-whatsapp-panel flex items-center gap-3 border-b border-gray-700">
-                <div className={`w-10 h-10 rounded-full ${getAvatarColor(selectedUser.username)} flex items-center justify-center text-white font-semibold`}>
+                {/* Mobile-e back button, desktop-e hidden */}
+                <button
+                    onClick={onBack}
+                    className="md:hidden text-gray-300 hover:text-white text-xl"
+                >
+                    ←
+                </button>
+                <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold">
                     {selectedUser.username.charAt(0).toUpperCase()}
                 </div>
                 <div>

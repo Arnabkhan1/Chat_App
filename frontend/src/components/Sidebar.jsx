@@ -56,7 +56,7 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
     );
 
     return (
-        <div className="w-full md:w-1/3 bg-whatsapp-panel border-r border-gray-700 flex flex-col h-screen">
+        <div className="w-full bg-whatsapp-panel border-r border-gray-700 flex flex-col h-screen">
             {/* Header */}
             <div className="p-4 bg-whatsapp-dark flex justify-between items-center">
                 <h2 className="text-white font-semibold text-lg">Chats</h2>
