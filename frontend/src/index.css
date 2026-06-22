@@ -1,51 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar - WhatsApp-style thin scrollbar */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  overscroll-behavior-y: contain;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Custom scrollbar - thin, matches Nebula theme */
 ::-webkit-scrollbar {
   width: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #2a3942;
+  background: #2A2347;
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a4a52;
+  background: #3A3163;
+}
+
+/* Sent-message gradient bubble - the signature element */
+.bubble-gradient {
+  background: linear-gradient(135deg, #7C5CFC 0%, #6347E0 100%);
+}
+
+/* Glow effect for online-status dots, ties the accent through the UI */
+.glow-dot {
+  box-shadow: 0 0 8px 1px rgba(167, 139, 250, 0.55);
 }
 
 /* Message bubble entrance animation */
 @keyframes messageSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
 .message-bubble {
   animation: messageSlideIn 0.2s ease-out;
 }
 
 /* Typing indicator dots animation */
 @keyframes typingBounce {
-  0%, 60%, 100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-4px);
-  }
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
 }
-
 .typing-dot {
   animation: typingBounce 1.2s infinite ease-in-out;
 }
@@ -57,16 +63,8 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Mobile e tap highlight remove (UI cleaner lage) */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Prevent pull-to-refresh/bounce on mobile chat screen */
-html, body {
-  overscroll-behavior-y: contain;
-}
-
-body {
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+/* Visible keyboard focus ring, accessibility */
+button:focus-visible, input:focus-visible {
+  outline: 2px solid #7C5CFC;
+  outline-offset: 1px;
 }

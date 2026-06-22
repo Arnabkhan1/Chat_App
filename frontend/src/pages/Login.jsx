@@ -29,25 +29,30 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-whatsapp-dark">
-      <div className="bg-whatsapp-panel p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">
-          Welcome Back
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-nebula-bg px-4">
+      <div className="bg-nebula-panel border border-nebula-border p-8 rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-14 h-14 rounded-2xl bubble-gradient flex items-center justify-center text-2xl mb-4 shadow-glow">
+            💬
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Welcome back</h1>
+          <p className="text-nebula-muted text-sm mt-1">Log in to keep the conversation going</p>
+        </div>
 
         {error && (
-          <p className="bg-red-500/20 text-red-400 text-sm p-2 rounded mb-4">
+          <p className="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm p-3 rounded-xl mb-4">
             {error}
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 rounded bg-gray-700 text-white outline-none focus:ring-2 focus:ring-whatsapp-green"
+            autoComplete="email"
+            className="w-full p-3 rounded-xl bg-nebula-elevated text-white outline-none border border-transparent focus:border-nebula-primary placeholder-nebula-muted transition"
             required
           />
           <input
@@ -55,22 +60,23 @@ const Login = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 rounded bg-gray-700 text-white outline-none focus:ring-2 focus:ring-whatsapp-green"
+            autoComplete="current-password"
+            className="w-full p-3 rounded-xl bg-nebula-elevated text-white outline-none border border-transparent focus:border-nebula-primary placeholder-nebula-muted transition"
             required
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-whatsapp-green text-white p-3 rounded font-semibold hover:bg-whatsapp-lightgreen transition disabled:opacity-50"
+            className="w-full bubble-gradient text-white p-3 rounded-xl font-semibold hover:opacity-90 active:opacity-80 transition disabled:opacity-50 mt-2"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <p className="text-gray-400 text-sm mt-4 text-center">
+        <p className="text-nebula-muted text-sm mt-5 text-center">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-whatsapp-green hover:underline">
+          <Link to="/signup" className="text-nebula-glow hover:text-white transition">
             Sign Up
           </Link>
         </p>

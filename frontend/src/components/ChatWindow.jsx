@@ -3,14 +3,19 @@ import { useSocketContext } from '../context/SocketContext';
 import useAuthStore from '../context/authStore';
 import { getMessages, sendMessage, deleteMessage, editMessage } from '../services/messageService';
 
-const avatarColors = [
-    'bg-pink-600', 'bg-purple-600', 'bg-indigo-600',
-    'bg-blue-600', 'bg-teal-600', 'bg-orange-600', 'bg-rose-600',
+const avatarGradients = [
+    'from-purple-500 to-indigo-600',
+    'from-rose-500 to-pink-600',
+    'from-blue-500 to-cyan-500',
+    'from-amber-500 to-orange-600',
+    'from-emerald-500 to-teal-600',
+    'from-fuchsia-500 to-purple-600',
+    'from-indigo-500 to-blue-600',
 ];
 
-const getAvatarColor = (username) => {
-    const index = username.charCodeAt(0) % avatarColors.length;
-    return avatarColors[index];
+const getAvatarGradient = (username) => {
+    const index = username.charCodeAt(0) % avatarGradients.length;
+    return avatarGradients[index];
 };
 
 const ChatWindow = ({ selectedUser, onBack }) => {
@@ -30,7 +35,6 @@ const ChatWindow = ({ selectedUser, onBack }) => {
     const { socket } = useSocketContext();
     const currentUser = useAuthStore((state) => state.user);
 
-    // Selected user change hole purono messages fetch koro
     useEffect(() => {
         if (!selectedUser) return;
 
@@ -49,15 +53,10 @@ const ChatWindow = ({ selectedUser, onBack }) => {
         fetchMessages();
     }, [selectedUser]);
 
-    // Real-time: notun message, delete, edit listen koro
-    // NOTE: shudhu EKTA useEffect e shob socket listener rakha hocche,
-    // duplicate useEffect thakle same event duibar register hoy -> duplicate message bug
     useEffect(() => {
         if (!socket) return;
 
         const handleNewMessage = (newMessage) => {
-            // Shudhu OPPOSITE user-er pathano message socket theke add koro
-            // Nijer pathano message already handleSend-e API response theke add hoye geche
             if (newMessage.senderId === selectedUser?._id) {
                 setMessages((prev) => [...prev, newMessage]);
             }
@@ -84,20 +83,14 @@ const ChatWindow = ({ selectedUser, onBack }) => {
         };
     }, [socket, selectedUser, currentUser]);
 
-    // Real-time: opposite user typing korche kina listen koro
     useEffect(() => {
         if (!socket) return;
 
         const handleUserTyping = ({ senderId }) => {
-            if (senderId === selectedUser?._id) {
-                setOtherUserTyping(true);
-            }
+            if (senderId === selectedUser?._id) setOtherUserTyping(true);
         };
-
         const handleUserStopTyping = ({ senderId }) => {
-            if (senderId === selectedUser?._id) {
-                setOtherUserTyping(false);
-            }
+            if (senderId === selectedUser?._id) setOtherUserTyping(false);
         };
 
         socket.on('userTyping', handleUserTyping);
@@ -109,47 +102,33 @@ const ChatWindow = ({ selectedUser, onBack }) => {
         };
     }, [socket, selectedUser]);
 
-    // Selected user change hole otherUserTyping reset koro
     useEffect(() => {
         setOtherUserTyping(false);
     }, [selectedUser]);
 
-    // Notun message ashle auto scroll niche
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     const handleTyping = (e) => {
         setText(e.target.value);
-
         if (!socket || !selectedUser) return;
 
-        socket.emit('typing', {
-            receiverId: selectedUser._id,
-            senderId: currentUser._id,
-        });
+        socket.emit('typing', { receiverId: selectedUser._id, senderId: currentUser._id });
 
-        if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-        }
-
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = setTimeout(() => {
-            socket.emit('stopTyping', {
-                receiverId: selectedUser._id,
-                senderId: currentUser._id,
-            });
+            socket.emit('stopTyping', { receiverId: selectedUser._id, senderId: currentUser._id });
         }, 2000);
     };
 
     const handleImageSelect = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         if (!file.type.startsWith('image/')) {
             alert('Please select an image file');
             return;
         }
-
         setImageFile(file);
         setImagePreview(URL.createObjectURL(file));
     };
@@ -171,10 +150,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
             removeImagePreview();
 
             if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-            socket.emit('stopTyping', {
-                receiverId: selectedUser._id,
-                senderId: currentUser._id,
-            });
+            socket.emit('stopTyping', { receiverId: selectedUser._id, senderId: currentUser._id });
         } catch (error) {
             console.error('Failed to send message:', error);
         }
@@ -217,36 +193,36 @@ const ChatWindow = ({ selectedUser, onBack }) => {
 
     if (!selectedUser) {
         return (
-            <div className="hidden md:flex flex-1 items-center justify-center bg-whatsapp-dark h-screen">
-                <p className="text-gray-400 text-lg">
-                    Select a chat to start messaging
-                </p>
+            <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-nebula-bg h-screen gap-3">
+                <div className="w-16 h-16 rounded-full bg-nebula-elevated flex items-center justify-center text-3xl">
+                    💬
+                </div>
+                <p className="text-nebula-muted text-lg">Select a chat to start messaging</p>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col h-screen bg-whatsapp-dark">
+        <div className="flex flex-col h-screen bg-nebula-bg">
             {/* Header */}
-            <div className="p-3 md:p-4 bg-whatsapp-panel flex items-center gap-3 border-b border-gray-700 flex-shrink-0">
-                {/* Mobile-e back button, desktop-e hidden */}
+            <div className="p-3 md:p-4 bg-nebula-panel flex items-center gap-3 border-b border-nebula-border flex-shrink-0">
                 <button
                     onClick={onBack}
-                    className="md:hidden text-gray-300 hover:text-white text-2xl px-1 -ml-1 flex-shrink-0"
+                    className="md:hidden text-nebula-muted hover:text-white text-2xl px-1 -ml-1 flex-shrink-0"
                     aria-label="Back to chats"
                 >
                     ←
                 </button>
-                <div className={`w-10 h-10 rounded-full ${getAvatarColor(selectedUser.username)} flex items-center justify-center text-white font-semibold flex-shrink-0`}>
+                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(selectedUser.username)} flex items-center justify-center text-white font-semibold flex-shrink-0 shadow-md`}>
                     {selectedUser.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
                     <p className="text-white font-medium truncate">{selectedUser.username}</p>
                     {otherUserTyping && (
                         <div className="flex items-center gap-1">
-                            <span className="typing-dot w-1.5 h-1.5 bg-whatsapp-lightgreen rounded-full"></span>
-                            <span className="typing-dot w-1.5 h-1.5 bg-whatsapp-lightgreen rounded-full"></span>
-                            <span className="typing-dot w-1.5 h-1.5 bg-whatsapp-lightgreen rounded-full"></span>
+                            <span className="typing-dot w-1.5 h-1.5 bg-nebula-glow rounded-full"></span>
+                            <span className="typing-dot w-1.5 h-1.5 bg-nebula-glow rounded-full"></span>
+                            <span className="typing-dot w-1.5 h-1.5 bg-nebula-glow rounded-full"></span>
                         </div>
                     )}
                 </div>
@@ -255,7 +231,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2">
                 {loading && (
-                    <p className="text-gray-400 text-center">Loading messages...</p>
+                    <p className="text-nebula-muted text-center">Loading messages...</p>
                 )}
 
                 {!loading &&
@@ -278,30 +254,29 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                                                 type="text"
                                                 value={editText}
                                                 onChange={(e) => setEditText(e.target.value)}
-                                                className="p-2 rounded bg-gray-600 text-white outline-none text-sm flex-1"
+                                                className="p-2 rounded-lg bg-nebula-elevated text-white outline-none border border-nebula-primary text-sm flex-1"
                                                 autoFocus
                                             />
-                                            <button type="submit" className="text-whatsapp-lightgreen text-sm px-2">
-                                                ✓
-                                            </button>
-                                            <button type="button" onClick={cancelEdit} className="text-red-400 text-sm px-2">
-                                                ✕
-                                            </button>
+                                            <button type="submit" className="text-nebula-glow text-sm px-2">✓</button>
+                                            <button type="button" onClick={cancelEdit} className="text-rose-400 text-sm px-2">✕</button>
                                         </form>
                                     ) : (
                                         <div
-                                            className={`p-2 px-3 rounded-lg text-white ${isMine ? 'bg-whatsapp-bubble' : 'bg-gray-700'
-                                                }`}
+                                            className={`p-3 px-4 rounded-2xl text-white ${
+                                                isMine
+                                                    ? 'bubble-gradient rounded-tr-sm'
+                                                    : 'bg-nebula-elevated rounded-tl-sm'
+                                            }`}
                                         >
                                             {msg.image && (
                                                 <img
                                                     src={msg.image}
                                                     alt="shared"
-                                                    className="rounded-lg mb-1 max-w-full max-h-60 object-cover"
+                                                    className="rounded-xl mb-1 max-w-full max-h-60 object-cover"
                                                 />
                                             )}
-                                            {msg.text && <p className="break-words">{msg.text}</p>}
-                                            <p className="text-xs text-gray-300 mt-1 text-right">
+                                            {msg.text && <p className="break-words leading-relaxed">{msg.text}</p>}
+                                            <p className={`text-xs mt-1 text-right ${isMine ? 'text-purple-200/80' : 'text-nebula-muted'}`}>
                                                 {msg.edited && <span className="italic mr-1">edited</span>}
                                                 {new Date(msg.createdAt).toLocaleTimeString([], {
                                                     hour: '2-digit',
@@ -311,19 +286,18 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                                         </div>
                                     )}
 
-                                    {/* Hover/tap korle Edit/Delete option (shudhu nijer message-e) */}
                                     {isMine && hoveredId === msg._id && !isEditing && (
-                                        <div className="absolute -top-3 right-2 flex gap-1 bg-gray-800 rounded px-1">
+                                        <div className="absolute -top-3 right-2 flex gap-1 bg-nebula-panel border border-nebula-border rounded-lg px-1 shadow-lg">
                                             <button
                                                 onClick={() => startEdit(msg)}
-                                                className="text-gray-300 hover:text-white text-xs px-2 py-1"
+                                                className="text-nebula-muted hover:text-white text-xs px-2 py-1"
                                                 title="Edit"
                                             >
                                                 ✏️
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(msg._id)}
-                                                className="text-gray-300 hover:text-red-400 text-xs px-2 py-1"
+                                                className="text-nebula-muted hover:text-rose-400 text-xs px-2 py-1"
                                                 title="Delete"
                                             >
                                                 🗑️
@@ -338,19 +312,11 @@ const ChatWindow = ({ selectedUser, onBack }) => {
             </div>
 
             {/* Input box */}
-            <form
-                onSubmit={handleSend}
-                className="bg-whatsapp-panel flex-shrink-0"
-            >
-                {/* Image preview, thakले */}
+            <form onSubmit={handleSend} className="bg-nebula-panel border-t border-nebula-border flex-shrink-0">
                 {imagePreview && (
-                    <div className="p-2 px-3 flex items-center gap-2 border-b border-gray-700">
-                        <img src={imagePreview} alt="preview" className="h-16 rounded" />
-                        <button
-                            type="button"
-                            onClick={removeImagePreview}
-                            className="text-red-400 text-sm"
-                        >
+                    <div className="p-2 px-3 flex items-center gap-2 border-b border-nebula-border">
+                        <img src={imagePreview} alt="preview" className="h-16 rounded-lg" />
+                        <button type="button" onClick={removeImagePreview} className="text-rose-400 text-sm">
                             Remove
                         </button>
                     </div>
@@ -367,7 +333,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="text-gray-300 hover:text-white text-2xl px-2 flex-shrink-0"
+                        className="text-nebula-muted hover:text-white text-2xl px-2 flex-shrink-0 transition"
                         title="Send image"
                     >
                         📎
@@ -377,11 +343,11 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                         value={text}
                         onChange={handleTyping}
                         placeholder="Type a message..."
-                        className="flex-1 p-3 rounded-full bg-gray-700 text-white outline-none focus:ring-2 focus:ring-whatsapp-green text-base min-w-0"
+                        className="flex-1 p-3 rounded-full bg-nebula-elevated text-white outline-none border border-transparent focus:border-nebula-primary text-base min-w-0 transition"
                     />
                     <button
                         type="submit"
-                        className="bg-whatsapp-green text-white p-3 rounded-full px-5 hover:bg-whatsapp-lightgreen active:bg-whatsapp-lightgreen transition flex-shrink-0"
+                        className="bubble-gradient text-white p-3 rounded-full px-5 font-medium hover:opacity-90 active:opacity-80 transition flex-shrink-0"
                     >
                         Send
                     </button>

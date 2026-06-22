@@ -3,14 +3,20 @@ import { getUsers } from '../services/messageService';
 import { useSocketContext } from '../context/SocketContext';
 import useAuthStore from '../context/authStore';
 
-const avatarColors = [
-    'bg-pink-600', 'bg-purple-600', 'bg-indigo-600',
-    'bg-blue-600', 'bg-teal-600', 'bg-orange-600', 'bg-rose-600',
+// Gradient avatar pairs - more premium than flat colors
+const avatarGradients = [
+    'from-purple-500 to-indigo-600',
+    'from-rose-500 to-pink-600',
+    'from-blue-500 to-cyan-500',
+    'from-amber-500 to-orange-600',
+    'from-emerald-500 to-teal-600',
+    'from-fuchsia-500 to-purple-600',
+    'from-indigo-500 to-blue-600',
 ];
 
-const getAvatarColor = (username) => {
-    const index = username.charCodeAt(0) % avatarColors.length;
-    return avatarColors[index];
+const getAvatarGradient = (username) => {
+    const index = username.charCodeAt(0) % avatarGradients.length;
+    return avatarGradients[index];
 };
 
 const formatLastSeen = (date) => {
@@ -50,43 +56,42 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
         fetchUsers();
     }, []);
 
-    // Search term diye user list filter koro
     const filteredUsers = users.filter((u) =>
         u.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
-        <div className="w-full bg-whatsapp-panel flex flex-col h-screen">
+        <div className="w-full bg-nebula-panel flex flex-col h-screen">
             {/* Header */}
-            <div className="p-4 bg-whatsapp-dark flex justify-between items-center sticky top-0 z-10 flex-shrink-0">
-                <h2 className="text-white font-bold text-xl">Chats</h2>
+            <div className="p-4 flex justify-between items-center border-b border-nebula-border flex-shrink-0">
+                <h2 className="text-white font-bold text-xl tracking-tight">Chats</h2>
                 <button
                     onClick={logout}
-                    className="text-gray-300 hover:text-white text-sm px-3 py-1.5 rounded-full hover:bg-gray-700 active:bg-gray-600 transition"
+                    className="text-nebula-muted hover:text-white text-sm px-3 py-1.5 rounded-full hover:bg-nebula-elevated active:bg-nebula-elevated transition"
                 >
                     Logout
                 </button>
             </div>
 
             {/* Search bar */}
-            <div className="p-2 px-3 bg-whatsapp-panel flex-shrink-0">
+            <div className="p-3 flex-shrink-0">
                 <input
                     type="text"
                     placeholder="Search or start a new chat"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-2.5 px-4 rounded-lg bg-gray-700/60 text-white text-base outline-none focus:ring-1 focus:ring-whatsapp-green placeholder-gray-400"
+                    className="w-full p-2.5 px-4 rounded-xl bg-nebula-elevated text-white text-base outline-none border border-transparent focus:border-nebula-primary placeholder-nebula-muted transition"
                 />
             </div>
 
             {/* User List */}
-            <div className="overflow-y-auto flex-1">
+            <div className="overflow-y-auto flex-1 px-2 pb-2 space-y-0.5">
                 {loading && (
-                    <p className="text-gray-400 text-center p-4">Loading...</p>
+                    <p className="text-nebula-muted text-center p-4">Loading...</p>
                 )}
 
                 {!loading && filteredUsers.length === 0 && (
-                    <p className="text-gray-400 text-center p-4">
+                    <p className="text-nebula-muted text-center p-4">
                         {searchTerm ? 'No matching users' : 'No users found'}
                     </p>
                 )}
@@ -99,20 +104,23 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
                         <div
                             key={u._id}
                             onClick={() => setSelectedUser(u)}
-                            className={`flex items-center gap-3 p-4 cursor-pointer active:bg-gray-700/70 hover:bg-gray-700/50 transition ${isSelected ? 'bg-gray-700/70' : ''
-                                }`}
+                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition ${
+                                isSelected
+                                    ? 'bg-nebula-elevated'
+                                    : 'active:bg-nebula-elevated/70 hover:bg-nebula-elevated/50'
+                            }`}
                         >
                             <div className="relative flex-shrink-0">
-                                <div className={`w-12 h-12 rounded-full ${getAvatarColor(u.username)} flex items-center justify-center text-white font-semibold text-lg`}>
+                                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAvatarGradient(u.username)} flex items-center justify-center text-white font-semibold text-lg shadow-md`}>
                                     {u.username.charAt(0).toUpperCase()}
                                 </div>
                                 {isOnline && (
-                                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-whatsapp-lightgreen rounded-full border-2 border-whatsapp-panel"></span>
+                                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-nebula-glow rounded-full border-2 border-nebula-panel glow-dot"></span>
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-white font-medium truncate">{u.username}</p>
-                                <p className="text-gray-400 text-sm truncate">
+                                <p className="text-nebula-muted text-sm truncate">
                                     {isOnline ? 'Online' : `Last seen ${formatLastSeen(u.lastSeen)}`}
                                 </p>
                             </div>
