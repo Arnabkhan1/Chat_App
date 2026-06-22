@@ -3,6 +3,16 @@ import { useSocketContext } from '../context/SocketContext';
 import useAuthStore from '../context/authStore';
 import { getMessages, sendMessage, deleteMessage, editMessage } from '../services/messageService';
 
+const avatarColors = [
+    'bg-pink-600', 'bg-purple-600', 'bg-indigo-600',
+    'bg-blue-600', 'bg-teal-600', 'bg-orange-600', 'bg-rose-600',
+];
+
+const getAvatarColor = (username) => {
+    const index = username.charCodeAt(0) % avatarColors.length;
+    return avatarColors[index];
+};
+
 const ChatWindow = ({ selectedUser, onBack }) => {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
@@ -19,17 +29,6 @@ const ChatWindow = ({ selectedUser, onBack }) => {
 
     const { socket } = useSocketContext();
     const currentUser = useAuthStore((state) => state.user);
-
-
-    const avatarColors = [
-        'bg-pink-600', 'bg-purple-600', 'bg-indigo-600',
-        'bg-blue-600', 'bg-teal-600', 'bg-orange-600', 'bg-rose-600',
-    ];
-
-    const getAvatarColor = (username) => {
-        const index = username.charCodeAt(0) % avatarColors.length;
-        return avatarColors[index];
-    };
 
     // Selected user change hole purono messages fetch koro
     useEffect(() => {
@@ -218,7 +217,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
 
     if (!selectedUser) {
         return (
-            <div className="hidden md:flex flex-1 items-center justify-center bg-whatsapp-dark">
+            <div className="hidden md:flex flex-1 items-center justify-center bg-whatsapp-dark h-screen">
                 <p className="text-gray-400 text-lg">
                     Select a chat to start messaging
                 </p>
@@ -227,22 +226,22 @@ const ChatWindow = ({ selectedUser, onBack }) => {
     }
 
     return (
-        <div className="flex-1 flex flex-col h-screen bg-whatsapp-dark">
+        <div className="flex flex-col h-screen bg-whatsapp-dark">
             {/* Header */}
-            {/* Header */}
-            <div className="p-4 bg-whatsapp-panel flex items-center gap-3 border-b border-gray-700">
+            <div className="p-3 md:p-4 bg-whatsapp-panel flex items-center gap-3 border-b border-gray-700 flex-shrink-0">
                 {/* Mobile-e back button, desktop-e hidden */}
                 <button
                     onClick={onBack}
-                    className="md:hidden text-gray-300 hover:text-white text-xl"
+                    className="md:hidden text-gray-300 hover:text-white text-2xl px-1 -ml-1 flex-shrink-0"
+                    aria-label="Back to chats"
                 >
                     ←
                 </button>
-                <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold">
+                <div className={`w-10 h-10 rounded-full ${getAvatarColor(selectedUser.username)} flex items-center justify-center text-white font-semibold flex-shrink-0`}>
                     {selectedUser.username.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                    <p className="text-white font-medium">{selectedUser.username}</p>
+                <div className="min-w-0">
+                    <p className="text-white font-medium truncate">{selectedUser.username}</p>
                     {otherUserTyping && (
                         <div className="flex items-center gap-1">
                             <span className="typing-dot w-1.5 h-1.5 bg-whatsapp-lightgreen rounded-full"></span>
@@ -254,7 +253,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2">
                 {loading && (
                     <p className="text-gray-400 text-center">Loading messages...</p>
                 )}
@@ -270,8 +269,9 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                                 className={`flex message-bubble ${isMine ? 'justify-end' : 'justify-start'}`}
                                 onMouseEnter={() => setHoveredId(msg._id)}
                                 onMouseLeave={() => setHoveredId(null)}
+                                onTouchStart={() => setHoveredId(msg._id)}
                             >
-                                <div className="relative max-w-xs md:max-w-md">
+                                <div className="relative max-w-[80%] md:max-w-md">
                                     {isEditing ? (
                                         <form onSubmit={(e) => handleEditSubmit(e, msg._id)} className="flex gap-1">
                                             <input
@@ -300,7 +300,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                                                     className="rounded-lg mb-1 max-w-full max-h-60 object-cover"
                                                 />
                                             )}
-                                            {msg.text && <p>{msg.text}</p>}
+                                            {msg.text && <p className="break-words">{msg.text}</p>}
                                             <p className="text-xs text-gray-300 mt-1 text-right">
                                                 {msg.edited && <span className="italic mr-1">edited</span>}
                                                 {new Date(msg.createdAt).toLocaleTimeString([], {
@@ -311,19 +311,19 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                                         </div>
                                     )}
 
-                                    {/* Hover korle Edit/Delete option (shudhu nijer message-e) */}
+                                    {/* Hover/tap korle Edit/Delete option (shudhu nijer message-e) */}
                                     {isMine && hoveredId === msg._id && !isEditing && (
                                         <div className="absolute -top-3 right-2 flex gap-1 bg-gray-800 rounded px-1">
                                             <button
                                                 onClick={() => startEdit(msg)}
-                                                className="text-gray-300 hover:text-white text-xs px-1"
+                                                className="text-gray-300 hover:text-white text-xs px-2 py-1"
                                                 title="Edit"
                                             >
                                                 ✏️
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(msg._id)}
-                                                className="text-gray-300 hover:text-red-400 text-xs px-1"
+                                                className="text-gray-300 hover:text-red-400 text-xs px-2 py-1"
                                                 title="Delete"
                                             >
                                                 🗑️
@@ -340,7 +340,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
             {/* Input box */}
             <form
                 onSubmit={handleSend}
-                className="bg-whatsapp-panel"
+                className="bg-whatsapp-panel flex-shrink-0"
             >
                 {/* Image preview, thakले */}
                 {imagePreview && (
@@ -356,7 +356,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                     </div>
                 )}
 
-                <div className="p-3 flex items-center gap-2">
+                <div className="p-2 md:p-3 flex items-center gap-2 safe-area-bottom">
                     <input
                         type="file"
                         accept="image/*"
@@ -367,7 +367,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="text-gray-300 hover:text-white text-xl px-2"
+                        className="text-gray-300 hover:text-white text-2xl px-2 flex-shrink-0"
                         title="Send image"
                     >
                         📎
@@ -377,11 +377,11 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                         value={text}
                         onChange={handleTyping}
                         placeholder="Type a message..."
-                        className="flex-1 p-3 rounded-full bg-gray-700 text-white outline-none focus:ring-2 focus:ring-whatsapp-green"
+                        className="flex-1 p-3 rounded-full bg-gray-700 text-white outline-none focus:ring-2 focus:ring-whatsapp-green text-base min-w-0"
                     />
                     <button
                         type="submit"
-                        className="bg-whatsapp-green text-white p-3 rounded-full px-5 hover:bg-whatsapp-lightgreen transition"
+                        className="bg-whatsapp-green text-white p-3 rounded-full px-5 hover:bg-whatsapp-lightgreen active:bg-whatsapp-lightgreen transition flex-shrink-0"
                     >
                         Send
                     </button>

@@ -8,9 +8,9 @@ const ChatPage = () => {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Mobile: sidebar full-screen jokhon kono user select kora nei.
-          Desktop (md+): sidebar always dekhabe, chat window pashe */}
+          Desktop (md+): sidebar always dekhabe, fixed width, chat window pashe */}
       <div
-        className={`w-full md:w-[380px] md:flex-shrink-0 ${
+        className={`w-full md:w-[380px] md:flex-shrink-0 md:border-r md:border-gray-700 ${
           selectedUser ? 'hidden md:block' : 'block'
         }`}
       >
@@ -20,7 +20,7 @@ const ChatPage = () => {
       {/* Mobile: chat window full-screen jokhon user select kora ache.
           Desktop: always dekhabe (placeholder na hole) */}
       <div
-        className={`flex-1 ${
+        className={`flex-1 min-w-0 ${
           selectedUser ? 'block' : 'hidden md:block'
         }`}
       >
