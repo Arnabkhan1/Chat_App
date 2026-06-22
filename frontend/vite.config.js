@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'ChatApp',
-        short_name: 'ChatApp',
+        name: 'ML',
+        short_name: 'ML',
         description: 'A real-time WhatsApp-style chat application',
         theme_color: '#111b21',
         background_color: '#111b21',
